@@ -55,7 +55,10 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        self.params["W1"] = np.random.normal(0.0, weight_scale, (input_dim, hidden_dim))
+        self.params["W2"] = np.random.normal(0.0, weight_scale, (hidden_dim, num_classes))
+        self.params["b1"] = np.zeros(hidden_dim, dtype=float)
+        self.params["b2"] = np.zeros(num_classes, dtype=float)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -88,7 +91,9 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        out1, cache1 = affine_relu_forward(X, self.params["W1"], self.params["b1"])
+        out2, cache2 = affine_forward(out1, self.params["W2"], self.params["b2"])
+        scores = out2
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -112,7 +117,14 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        loss, dscores = softmax_loss(scores, y)
+        dout1, grads["W2"], grads["b2"] = affine_backward(dscores, cache2)
+        dX, grads["W1"], grads["b1"] = affine_relu_backward(dout1, cache1)
+
+        for w in ["W2", "W1"]:
+            if self.reg > 0:
+                loss += 0.5 * self.reg * (self.params[w] ** 2).sum()
+            grads[w] += self.reg * self.params[w]
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
